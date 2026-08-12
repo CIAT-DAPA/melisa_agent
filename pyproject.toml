@@ -1,0 +1,11 @@
+[project]
+name = "melisa-agent"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "gradio>=6.23.1",
+    "litellm>=1.96.2",
+    "mcp<1.10",
+]
