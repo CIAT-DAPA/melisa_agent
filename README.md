@@ -12,7 +12,7 @@ AI assistant for agroclimatic information powered by the [AClimate](https://acli
 
 ```bash
 # Clone the repository
-git clone 
+git clone https://github.com/CIAT-DAPA/melisa_agent.git
 cd melisa_agent
 
 # Install dependencies
