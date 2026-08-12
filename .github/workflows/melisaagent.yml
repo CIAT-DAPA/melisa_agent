@@ -1,0 +1,106 @@
+name: Melisa Agent CI/CD
+
+on:
+  push:
+    branches: ["stage"]
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  TestMelisa:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install dependencies
+        run: uv sync --all-groups
+
+
+  MergeMainMelisa:
+    needs: TestMelisa
+    name: Merge stage with main
+    permissions: write-all
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Merge stage -> main
+        uses: devmasx/merge-branch@master
+        with:
+          type: now
+          head_to_merge: ${{ github.ref }}
+          target_branch: main
+          github_token: ${{ github.token }}
+
+  PostRelease:
+    needs: MergeMainMelisa
+    name: Create Release
+    runs-on: ubuntu-latest
+    permissions: write-all
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Build package
+        run: uv build
+
+      - name: Zip source artifact
+        run: zip -r melisaagent.zip src pyproject.toml README.md uv.lock tests examples
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: melisaagent
+          path: |
+            dist/*
+            melisaagent.zip
+
+      - name: Generate tag name for release
+        id: taggerDryRun
+        uses: anothrNick/github-tag-action@1.61.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: true
+          DRY_RUN: true
+          DEFAULT_BUMP: patch
+          RELEASE_BRANCHES: stage,main
+          BRANCH_HISTORY: last
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          tag_name: ${{ steps.taggerDryRun.outputs.new_tag }}
+          release_name: Release ${{ steps.taggerDryRun.outputs.new_tag }}
+          body: ${{ github.event.head_commit.message }}
+          draft: false
+          prerelease: false
+
+      - name: Upload wheel to release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.taggerDryRun.outputs.new_tag }}
+          files: |
+            dist/*.whl
+            dist/*.tar.gz
+            melisaagent.zip
