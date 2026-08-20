@@ -8,4 +8,5 @@ dependencies = [
     "gradio>=6.23.1",
     "litellm>=1.96.2",
     "mcp<1.10",
+    "python-dotenv>=1.2.2",
 ]
