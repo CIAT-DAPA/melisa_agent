@@ -20,7 +20,7 @@ async def chat(message, history):
 app = gr.ChatInterface(
     fn=chat,
     title="Melisa - AClimate Agent",
-    description="AI assistant for agroclimatic information",
+    description="AI assistant for agroclimatic information available for Guatemala, Honduras, Nicaragua, and Amazonía",
 )
 
 app.launch(server_port=PORT)
