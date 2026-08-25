@@ -1266,6 +1266,7 @@ dependencies = [
     { name = "gradio" },
     { name = "litellm" },
     { name = "mcp" },
+    { name = "python-dotenv" },
 ]
 
 [package.metadata]
@@ -1273,6 +1274,7 @@ requires-dist = [
     { name = "gradio", specifier = ">=6.23.1" },
     { name = "litellm", specifier = ">=1.96.2" },
     { name = "mcp", specifier = "<1.10" },
+    { name = "python-dotenv", specifier = ">=1.2.2" },
 ]
 
 [[package]]
