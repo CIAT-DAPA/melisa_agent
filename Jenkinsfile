@@ -52,7 +52,7 @@ pipeline {
                             cd /var/www/melisa/melisa_agent
                             source /opt/anaconda3/etc/profile.d/conda.sh
                             conda activate /home/scalderon/.conda/envs/demeter_llm_api
-                            uv sync --no-dev
+                            /home/demeter_llm/.local/bin/uv sync --no-dev
                         """
                     } catch (Exception e) {
                         echo "Git Pull Error: ${e.message}"
@@ -71,7 +71,7 @@ pipeline {
                             conda activate /home/scalderon/.conda/envs/demeter_llm_api
                             source .venv/bin/activate
                             fuser -k 5004/tcp || true
-                            nohup uv run src/app.py > /var/www/melisa/melisa_agent/agent.log 2>&1 &
+                            nohup /home/demeter_llm/.local/bin/uv run src/app.py > /var/www/melisa/melisa_agent/agent.log 2>&1 &
                         """
                     } catch (Exception e) {
                         echo "API Restart Error: ${e.message}"
