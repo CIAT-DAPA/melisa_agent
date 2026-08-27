@@ -16,6 +16,28 @@ PORT = int(os.getenv("ACLIMATE_AGENT_PORT", 7860))
 MAX_HISTORY_MESSAGES = 20
 
 
+def extract_text(content) -> str:
+    """Get the plain text out of a Gradio message content.
+
+    Gradio 6 passes content as a list of blocks
+    ([{"text": "...", "type": "text"}]); older versions pass a plain
+    string. Non-text blocks (files, images) are ignored.
+    """
+    if isinstance(content, str):
+        return content
+
+    if isinstance(content, list):
+        return " ".join(
+            block["text"]
+            for block in content
+            if isinstance(block, dict)
+            and block.get("type") == "text"
+            and isinstance(block.get("text"), str)
+        )
+
+    return ""
+
+
 def build_memory_from_history(history: list[dict]) -> list[dict]:
     """Rebuild the agent memory from Gradio's per-session chat history.
 
@@ -23,13 +45,20 @@ def build_memory_from_history(history: list[dict]) -> list[dict]:
     call, so the agent itself can stay stateless: no memory is shared
     between users, and the conversation survives across turns.
     """
-    memory = [
-        {"role": msg["role"], "content": msg["content"]}
-        for msg in history
-        if msg.get("role") in ("user", "assistant")
-        and isinstance(msg.get("content"), str)
-        and msg["content"].strip()
-    ]
+    memory = []
+
+    for msg in history:
+        if not isinstance(msg, dict):
+            continue
+
+        if msg.get("role") not in ("user", "assistant"):
+            continue
+
+        text = extract_text(msg.get("content")).strip()
+
+        if text:
+            memory.append({"role": msg["role"], "content": text})
+
     return memory[-MAX_HISTORY_MESSAGES:]
 
 
