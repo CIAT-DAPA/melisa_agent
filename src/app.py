@@ -10,6 +10,7 @@ ACLIMATE_MCP_URL = os.getenv("ACLIMATE_MCP_URL", "https://mcp.aclimate.org/mcp")
 ACLIMATE_AGENT_MODEL = os.getenv("ACLIMATE_AGENT_MODEL", "ollama_chat/llama3.1:8b")
 ACLIMATE_AGENT_API_BASE = os.getenv("ACLIMATE_AGENT_API_BASE", "http://localhost:11434")
 PORT = int(os.getenv("ACLIMATE_AGENT_PORT", 7860))
+ACLIMATE_AGENT_HOST = os.getenv("ACLIMATE_AGENT_HOST", "localhost")
 
 # Cuantos mensajes recientes del historial se le pasan al modelo.
 # Controla el uso de la ventana de contexto (num_ctx) en conversaciones largas.
@@ -77,8 +78,8 @@ async def chat(message, history):
 
 app = gr.ChatInterface(
     fn=chat,
-    title="Melisa - AClimate Agent",
-    description="AI assistant for agroclimatic information available for Guatemala, Honduras, Nicaragua, and Amazonía",
+    title="Melisa Agent - AClimate",
+    description="Asistente de informacion agroclimatica para Guatemala, Honduras, Nicaragua, y Colombia Amazonía"
 )
 
-app.launch(server_port=PORT)
+app.launch(server_port=PORT, server_name=ACLIMATE_AGENT_HOST)
